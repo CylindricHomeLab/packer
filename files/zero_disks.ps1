@@ -37,7 +37,7 @@ if ((Test-Path -Path "$env:systemroot\Temp") -and ("$env:systemroot")) {
 Write-Output "ZeroDisks [INFO] Defragging.."
 if (Get-Command Optimize-Volume -ErrorAction SilentlyContinue) {
     Optimize-Volume -DriveLetter C -Defrag -verbose
-    } else {
+} else {
     Defrag.exe c: /H
 }
 

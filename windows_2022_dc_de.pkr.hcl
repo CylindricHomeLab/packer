@@ -13,26 +13,27 @@ source "hyperv-iso" "vm" {
   memory                = "${var.memory}"
   output_directory      = "${var.output_directory}"
   secondary_iso_images  = ["${var.secondary_iso_image}"]
-  shutdown_timeout      = "30m"
-  skip_export           = true
+  shutdown_timeout      = "60m"
+  skip_export           = false
+  skip_compaction       = true
   switch_name           = "${var.switch_name}"
   temp_path             = "."
   vlan_id               = "${var.vlan_id}"
   vm_name               = "${var.vm_name}"
+  winrm_username        = "Administrator"
   winrm_password        = "password"
   winrm_timeout         = "8h"
-  winrm_username        = "Administrator"
-  // shutdown_command      = "shutdown /s /t 0 /c 'Packer Shutdown' /f"
+  keep_registered       = true
 }
 
 build {
   sources = ["source.hyperv-iso.vm"]
 
-  provisioner "powershell" {
-    elevated_password = "password"
-    elevated_user     = "Administrator"
-    script            = "./files/zero_disks.ps1"
-  }
+  // provisioner "powershell" {
+  //   elevated_password = "password"
+  //   elevated_user     = "Administrator"
+  //   script            = "./files/zero_disks.ps1"
+  // }
 
   provisioner "file" {
     destination = "C:\\Windows\\System32\\Sysprep\\unattend.xml"
@@ -41,7 +42,7 @@ build {
 
   provisioner "powershell" {
     inline = [
-      "& $Env:SystemRoot\\System32\\Sysprep\\Sysprep.exe /oobe /generalize /shutdown /quiet /unattend:C:\\Windows\\system32\\sysprep\\unattend.xml"]
+    "& $Env:SystemRoot\\System32\\Sysprep\\Sysprep.exe /oobe /generalize /shutdown /quiet /unattend:C:\\Windows\\system32\\sysprep\\unattend.xml"]
   }
 
 }
