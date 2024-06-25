@@ -59,10 +59,10 @@ variable "sysprep_unattended" {
 //   default = ""
 // }
 
-variable "upgrade_timeout" {
-  type    = string
-  default = ""
-}
+// variable "upgrade_timeout" {
+//   type    = string
+//   default = ""
+// }
 
 // variable "vagrant_sysprep_unattended" {
 //   type    = string

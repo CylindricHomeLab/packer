@@ -13,11 +13,11 @@ source "hyperv-iso" "vm" {
   memory                = "${var.memory}"
   output_directory      = "${var.output_directory}"
   secondary_iso_images  = ["${var.secondary_iso_image}"]
-  shutdown_timeout      = "60m"
-  skip_export           = false
+  shutdown_timeout      = "120m"
+  skip_export           = true
   skip_compaction       = true
   switch_name           = "${var.switch_name}"
-  temp_path             = "."
+  temp_path             = "F:\\Virtual Machines\\packer"
   vlan_id               = "${var.vlan_id}"
   vm_name               = "${var.vm_name}"
   winrm_username        = "Administrator"
@@ -42,7 +42,9 @@ build {
 
   provisioner "powershell" {
     inline = [
-    "& $Env:SystemRoot\\System32\\Sysprep\\Sysprep.exe /oobe /generalize /shutdown /quiet /unattend:C:\\Windows\\system32\\sysprep\\unattend.xml"]
+      "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\Setup\\Status\\SysprepStatus' -Name 'GeneralizationState' -Value 7 -Verbose -Force",
+      "& $Env:SystemRoot\\System32\\Sysprep\\Sysprep.exe /oobe /generalize /shutdown /unattend:C:\\Windows\\system32\\sysprep\\unattend.xml"
+    ]
   }
 
 }
