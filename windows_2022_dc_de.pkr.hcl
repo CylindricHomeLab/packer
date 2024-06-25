@@ -13,7 +13,7 @@ source "hyperv-iso" "vm" {
   memory                = "${var.memory}"
   output_directory      = "${var.output_directory}"
   secondary_iso_images  = ["${var.secondary_iso_image}"]
-  shutdown_timeout      = "120m"
+  shutdown_timeout      = "30m"
   skip_export           = true
   skip_compaction       = true
   switch_name           = "${var.switch_name}"
@@ -24,7 +24,7 @@ source "hyperv-iso" "vm" {
   winrm_password        = "password"
   winrm_timeout         = "8h"
   keep_registered       = false
-  // shutdown_command      = "C:\\Windows\\System32\\Sysprep\\Sysprep.exe /oobe /generalize /shutdown /unattend:C:\\Windows\\system32\\sysprep\\unattend.xml"
+  shutdown_command      = "C:\\Windows\\System32\\Sysprep\\Sysprep.exe /oobe /generalize /shutdown /unattend:C:\\Windows\\system32\\sysprep\\unattend.xml"
 }
 
 build {
@@ -36,21 +36,17 @@ build {
   //   script            = "./files/zero_disks.ps1"
   // }
 
-  provisioner "powershell" {
-    inline = [
-      "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\Setup\\Status\\SysprepStatus' -Name 'GeneralizationState' -Value 7 -Verbose -Force"
-    ]
-  }
-
   provisioner "file" {
     destination = "C:\\Windows\\System32\\Sysprep\\unattend.xml"
     source      = "${var.sysprep_unattended}"
   }
 
-  provisioner "windows-shell" {
+  provisioner "powershell" {
     inline = [
-      "C:\\Windows\\System32\\Sysprep\\Sysprep.exe /oobe /generalize /shutdown /unattend:C:\\Windows\\system32\\sysprep\\unattend.xml"
+      "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\Setup\\Status\\SysprepStatus' -Name 'GeneralizationState' -Value 7 -Verbose -Force",
+      "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\WindowsNT\\CurrentVersion\\SoftwhereProtectionPlatform' -Name 'SkipRearm' -Value 1 -Verbose -Force"
     ]
+    // "& C:\\Windows\\System32\\Sysprep\\Sysprep.exe /oobe /generalize /quiet /shutdown /unattend:C:\\Windows\\system32\\sysprep\\unattend.xml"
   }
 
 }
