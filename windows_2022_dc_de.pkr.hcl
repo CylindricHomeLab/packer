@@ -23,7 +23,8 @@ source "hyperv-iso" "vm" {
   winrm_username        = "Administrator"
   winrm_password        = "password"
   winrm_timeout         = "8h"
-  keep_registered       = true
+  keep_registered       = false
+  // shutdown_command      = "C:\\Windows\\System32\\Sysprep\\Sysprep.exe /oobe /generalize /shutdown /unattend:C:\\Windows\\system32\\sysprep\\unattend.xml"
 }
 
 build {
@@ -35,15 +36,20 @@ build {
   //   script            = "./files/zero_disks.ps1"
   // }
 
+  provisioner "powershell" {
+    inline = [
+      "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\Setup\\Status\\SysprepStatus' -Name 'GeneralizationState' -Value 7 -Verbose -Force"
+    ]
+  }
+
   provisioner "file" {
     destination = "C:\\Windows\\System32\\Sysprep\\unattend.xml"
     source      = "${var.sysprep_unattended}"
   }
 
-  provisioner "powershell" {
+  provisioner "windows-shell" {
     inline = [
-      "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\Setup\\Status\\SysprepStatus' -Name 'GeneralizationState' -Value 7 -Verbose -Force",
-      "& $Env:SystemRoot\\System32\\Sysprep\\Sysprep.exe /oobe /generalize /shutdown /unattend:C:\\Windows\\system32\\sysprep\\unattend.xml"
+      "C:\\Windows\\System32\\Sysprep\\Sysprep.exe /oobe /generalize /shutdown /unattend:C:\\Windows\\system32\\sysprep\\unattend.xml"
     ]
   }
 
